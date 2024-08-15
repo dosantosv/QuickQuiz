@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".views.ConclusionActivity">
+
+    <ImageView
+        android:id="@+id/image_notice"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_centerInParent="true"
+        android:contentDescription="Notice Image"
+        android:src="@drawable/baseline_celebration_24"/>
+
+    <TextView
+        android:id="@+id/text_notice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/image_notice"
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:text="Parabéns"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/text_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_notice"
+        android:text="Voce concluiu com 2 de 4 acertos"
+        android:gravity="center"
+        android:textSize="16sp"/>
+
+    <Button
+        android:id="@+id/btn_return"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text_count"
+        android:backgroundTint="#ADD8E6"
+        android:textSize="16sp"
+        android:layout_marginTop="40sp"
+        android:layout_centerHorizontal="true"
+        android:text="Voltar ao início"
+        android:textStyle="bold"/>
+
+</RelativeLayout>
