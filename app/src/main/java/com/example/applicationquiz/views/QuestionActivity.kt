@@ -3,15 +3,22 @@ package com.example.applicationquiz.views
 import android.content.Intent
 import android.os.Bundle
 import android.widget.CompoundButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.applicationquiz.User
 import com.example.applicationquiz.databinding.ActivityQuestionBinding
+import com.example.applicationquiz.entities.Question
 import com.example.applicationquiz.view.MockQuestions
+import com.example.applicationquiz.viewmodel.QuestionViewModel
 
 class QuestionActivity: AppCompatActivity(), CompoundButton.OnCheckedChangeListener {
 
+    private lateinit var viewModel: QuestionViewModel
     private lateinit var user: User
     private lateinit var _binding: ActivityQuestionBinding
+    private var currentQuestion: String = ""
+    private var correctAnswer: String = ""
+    private var answers: ArrayList<String> = ArrayList()
     private var _numberPage = 1
     private var currentResponse: String = ""
 
@@ -24,7 +31,9 @@ class QuestionActivity: AppCompatActivity(), CompoundButton.OnCheckedChangeListe
         val username = intent.getStringExtra("username") ?: ""
         user = User(username)
 
-        getQuestionsToNumberPage()
+        observe()
+
+        getQuestionsAndAnswers()
 
         _binding.btnPular.setOnClickListener { skipQuestion() }
         _binding.btnOk.setOnClickListener { onClickButtonOk() }
@@ -39,78 +48,58 @@ class QuestionActivity: AppCompatActivity(), CompoundButton.OnCheckedChangeListe
         currentResponse = buttonView.text.toString()
     }
 
-    private fun getQuestionsToNumberPage()
-    {
-        val questionPageOne = MockQuestions.responseOne["Tem entre 4 a 6 litros. São retirados 450 mililitros"]
-        val questionPageTwo = MockQuestions.responseTwo["Descartes"]
-        val questionPageThree = MockQuestions.responseThree["Brasil"]
-        val questionPageFour = MockQuestions.responseFour["Vaticano e Rússia"]
+    private fun observe() {
+        viewModel.questions.observe(this) {
+            if(it.sucess) {
+                it.responseData?.let { it1 -> getQuestions(it1) }
+            }
 
-        when (_numberPage) {
-            1 -> {
-                _binding.textQuestion.text = MockQuestions.questionOne
-                if(questionPageOne != null) {
-                    _binding.radiobtnResponse1.text = questionPageOne[0]
-                    _binding.radiobtnResponse2.text = questionPageOne[1]
-                    _binding.radiobtnResponse3.text = questionPageOne[2]
-                    _binding.radiobtnResponse4.text = questionPageOne[3]
-                }
-            }
-            2 -> {
-                _binding.textQuestion.text = MockQuestions.questionTwo
-                if(questionPageTwo != null) {
-                    _binding.radiobtnResponse1.text = questionPageTwo[0]
-                    _binding.radiobtnResponse2.text = questionPageTwo[1]
-                    _binding.radiobtnResponse3.text = questionPageTwo[2]
-                    _binding.radiobtnResponse4.text = questionPageTwo[3]
-                }
-            }
-            3 -> {
-                _binding.textQuestion.text = MockQuestions.questionThree
-                if(questionPageThree != null) {
-                    _binding.radiobtnResponse1.text = questionPageThree[0]
-                    _binding.radiobtnResponse2.text = questionPageThree[1]
-                    _binding.radiobtnResponse3.text = questionPageThree[2]
-                    _binding.radiobtnResponse4.text = questionPageThree[3]
-                }
-            }
-            4 -> {
-                _binding.textQuestion.text = MockQuestions.questionFour
-                if(questionPageFour != null) {
-                    _binding.radiobtnResponse1.text = questionPageFour[0]
-                    _binding.radiobtnResponse2.text = questionPageFour[1]
-                    _binding.radiobtnResponse3.text = questionPageFour[2]
-                    _binding.radiobtnResponse4.text = questionPageFour[3]
-                }
-            }
-            5 -> getConclusionActivity()
+            Toast.makeText(this, it.message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun getQuestions(question: Question) {
+        for (question in question.incorrect_answers)
+            answers.add(question)
+
+        correctAnswer = question.correct_answer
+
+        answers.add(correctAnswer)
+
+        currentQuestion = question.question
+    }
+
+    private fun getQuestionsAndAnswers()
+    {
+        _binding.textQuestion.text = currentQuestion
+        _binding.radiobtnResponse1.text = answers[0]
+        _binding.radiobtnResponse2.text = answers[1]
+        _binding.radiobtnResponse3.text = answers[2]
+        _binding.radiobtnResponse4.text = answers[3]
+
+        if(_numberPage == 5)
+            getConclusionActivity()
     }
 
     private fun skipQuestion() {
         _numberPage++
 
-        getQuestionsToNumberPage()
+        viewModel.getQuestions(1)
+
+        getQuestionsAndAnswers()
         cleanRadioButtons()
     }
 
     private fun onClickButtonOk() {
-        when(_numberPage) {
-            1 -> if (currentResponse == "Tem entre 4 a 6 litros. São retirados 450 mililitros") {
-                user.points++
-            }
-            2 -> if (currentResponse == "Descartes") {
-                user.points++
-            }
-            3 -> if (currentResponse == "Brasil") {
-                user.points++
-            }
-            4 -> if (currentResponse == "Vaticano e Rússia") {
-                user.points++
-            }
-        }
+
+        if(currentResponse == correctAnswer)
+            user.points++
+
         _numberPage++
-        getQuestionsToNumberPage()
+
+        viewModel.getQuestions(1)
+
+        getQuestionsAndAnswers()
         cleanRadioButtons()
     }
 

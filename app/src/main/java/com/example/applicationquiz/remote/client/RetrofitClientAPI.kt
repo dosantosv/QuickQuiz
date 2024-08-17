@@ -1,4 +1,4 @@
-package com.example.applicationquiz.client
+package com.example.applicationquiz.remote.client
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -22,6 +22,10 @@ class RetrofitClientAPI private constructor() {
             }
 
             return _instance
+        }
+
+        fun <T> getService(serviceClass: Class<T>) : T {
+            return getRetrofitInstance().create(serviceClass)
         }
     }
 }
